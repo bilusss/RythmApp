@@ -1,0 +1,44 @@
+name: Frontend Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      # Installs fresh version of dependencies (used for ci/prod builds) ci - clean install
+      - name: Install dependencies
+        id: install
+        run: npm ci
+
+      - name: Run ESLint
+        if: steps.install.outcome == 'success'
+        run: npm run lint
+        env:
+          EXPO_NO_TELEMETRY: '1'
+
+      - name: Run Prettier check
+        if: steps.install.outcome == 'success'
+        run: npm run format:check
+
