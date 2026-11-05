@@ -59,6 +59,8 @@ export default function AuthScreen({ onAuthSuccess, onForgotPassword }) {
       if (onAuthSuccess) {
         await onAuthSuccess({ mode, email: email.trim(), password });
       }
+    } catch (error) {
+      setErrors({ form: error.message });
     } finally {
       setLoading(false);
     }
@@ -155,6 +157,11 @@ export default function AuthScreen({ onAuthSuccess, onForgotPassword }) {
             />
 
             {/* Action Button */}
+            {errors.form ? (
+              <Text testID="auth-form-error" style={styles.formError}>
+                {errors.form}
+              </Text>
+            ) : null}
             <View style={styles.buttonContainer}>
               <Button
                 testID="submit-auth-button"
@@ -236,6 +243,11 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     ...theme.typography.link,
+  },
+  formError: {
+    color: theme.colors.error,
+    fontSize: 13,
+    marginTop: theme.spacing.sm,
   },
   buttonContainer: {
     marginTop: theme.spacing.sm,

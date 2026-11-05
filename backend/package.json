@@ -1,0 +1,16 @@
+{
+  "name": "rythm-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env src/index.js",
+    "dev": "node --watch --env-file=.env src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "zod": "^4.6.7"
+  }
+}

@@ -2,12 +2,38 @@ import { fireEvent, render, screen, userEvent } from '@testing-library/react-nat
 import React from 'react';
 import App from '../App';
 
+jest.mock('../src/api/supabase', () => ({ getSupabase: jest.fn() }));
+
+const fakeApi = () => {
+  let nextId = 1;
+  const settings = (s) => ({ ...s, categories: s.categories.map((c) => ({ ...c, serverId: 1 })) });
+  return {
+    hasSession: async () => false,
+    signIn: async () => {},
+    signUp: async () => {},
+    signOut: async () => {},
+    resetPassword: async () => {},
+    load: async () => ({
+      user: { email: 'ty@example.com', isOnboarded: false, settings: { categories: [] } },
+      checkins: [],
+    }),
+    saveSettings: async (s) => settings(s),
+    createCheckin: async (entry) => ({
+      ...entry,
+      id: String(nextId++),
+      status: 'done',
+      scheduledAt: entry.scheduledAt ?? new Date(),
+      completedAt: new Date(),
+    }),
+  };
+};
+
 describe('App flow', () => {
   it('goes from sign-up through onboarding to an empty dashboard, then saves a check-in', async () => {
     const user = userEvent.setup();
-    await render(<App />);
+    await render(<App api={fakeApi()} />);
 
-    await user.type(screen.getByTestId('email-input'), 'ty@example.com');
+    await user.type(await screen.findByTestId('email-input'), 'ty@example.com');
     await user.type(screen.getByTestId('password-input'), 'password123');
     await user.press(screen.getByTestId('submit-auth-button'));
 

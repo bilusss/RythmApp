@@ -45,3 +45,6 @@ export const CUSTOM_CATEGORY_COLORS = [
   '#C2410C',
   '#64748B',
 ];
+
+// Frontend id of a category = slug of its name (same rule as buildCategory).
+export const categoryId = (name) => buildCategory(name, '#000000').id;
