@@ -1,5 +1,13 @@
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Card from '../components/Card';
 import { SparkIcon } from '../components/Icons';
 import ScreenHeader from '../components/ScreenHeader';
@@ -14,7 +22,13 @@ const TONES = {
   purple: { dot: '#7954E8', chipBg: '#E8DEFF', chipText: '#4B2BB0' },
 };
 
-export default function InsightsScreen({ checkins, insight, onGenerate, now = new Date() }) {
+export default function InsightsScreen({
+  checkins,
+  insight,
+  onGenerate,
+  generating = false,
+  now = new Date(),
+}) {
   const total = filterByDays(checkins, INSIGHT_DAYS, now).length;
   const shownTotal = insight?.status === 'ready' ? insight.total : total;
 
@@ -30,9 +44,17 @@ export default function InsightsScreen({ checkins, insight, onGenerate, now = ne
           testID="generate-insights"
           activeOpacity={0.85}
           onPress={onGenerate}
-          style={styles.generate}
+          disabled={generating}
+          style={[styles.generate, generating && styles.generateBusy]}
         >
-          <Text style={styles.generateText}>Wyciągnij wnioski</Text>
+          {generating ? (
+            <View style={styles.busyRow}>
+              <ActivityIndicator color="#FFFFFF" />
+              <Text style={styles.generateText}>Analizuję wpisy…</Text>
+            </View>
+          ) : (
+            <Text style={styles.generateText}>Wyciągnij wnioski</Text>
+          )}
         </TouchableOpacity>
 
         <Card testID="insight-card" style={styles.card}>
@@ -97,6 +119,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   generateText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  generateBusy: { opacity: 0.8 },
+  busyRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   card: { paddingVertical: 18 },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   tagIcon: {

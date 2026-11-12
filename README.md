@@ -18,6 +18,20 @@ Podgląd:
 - **Emulator Androida:** w terminalu Expo naciśnij `a` (albo `npx expo start --android`).
 - **Przeglądarka:** naciśnij `w` (albo `npm run web`). Przy pierwszym uruchomieniu może być potrzebne `npx expo install react-dom react-native-web @expo/metro-runtime`.
 
+## Uruchomienie z backendem na PC (np. na MacBooku)
+
+Backend, baza i model AI działają na PC z GPU i są dostępne pod prywatnym adresem z tunelu Cloudflare
+(adres i klucz publishable u właściciela repo, szczegóły w `infra/README.md`). Lokalnie potrzebny jest tylko frontend:
+
+```bash
+cd frontend
+cp .env.example .env.local   # uzupełnij wartości (adres API, projekt Supabase, klucz publishable)
+npm ci
+npx expo start               # w = przeglądarka, i = symulator iOS, QR = Expo Go na telefonie
+```
+
+Rejestracja, logowanie, check-iny i „Wyciągnij wnioski” (Bielik) idą przez adres z `EXPO_PUBLIC_API_URL`.
+
 ## Testy i lint
 
 ```bash

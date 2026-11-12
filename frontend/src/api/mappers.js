@@ -64,3 +64,23 @@ export function toCheckinBody(entry, serverCategoryId, coords) {
     scheduled_at: entry.scheduledAt ? new Date(entry.scheduledAt).toISOString() : undefined,
   };
 }
+
+// POST /insights or GET /insights/latest row (Bielik's answer) -> the card shape InsightsScreen draws.
+// `total` is how many of the user's entries fall into the analysed window.
+export function toInsight(row, total) {
+  const data = row.structured_data ?? {};
+  const days = Math.max(1, Math.round((new Date(row.to_date) - new Date(row.from_date)) / 864e5));
+  return {
+    status: 'ready',
+    total,
+    days,
+    title: row.description,
+    bullets: data.happiest_time
+      ? [{ tone: 'purple', text: `Najszczęśliwszy jesteś: ${data.happiest_time}` }]
+      : [],
+    chips: [
+      ...(data.energy_boosters ?? []).map((text) => ({ tone: 'green', text: `↑ ${text}` })),
+      ...(data.energy_drainers ?? []).map((text) => ({ tone: 'orange', text: `↓ ${text}` })),
+    ],
+  };
+}

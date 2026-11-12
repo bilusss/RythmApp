@@ -1,0 +1,12 @@
+# Cloudflare Tunnel: public hostname (set in the Cloudflare dashboard, kept out of this public repo) -> backend on 127.0.0.1:3001.
+# Remotely managed (ingress set in the Cloudflare dashboard/API); only the token lives here, in .env.
+# No inbound ports are opened on the router or the PC.
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: rythm-tunnel
+    restart: unless-stopped
+    network_mode: host          # reaches the backend on 127.0.0.1
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:?set TUNNEL_TOKEN in .env}
