@@ -13,7 +13,8 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import { appReducer, initialState } from './src/state/appReducer';
 import { theme } from './src/styles/theme';
-import { generateInsights } from './src/utils/insights';
+import { INSIGHT_DAYS, MIN_INSIGHT_ENTRIES } from './src/utils/insights';
+import { filterByDays } from './src/utils/stats';
 import { notify } from './src/utils/notify';
 
 export default function App({ api = realApi }) {
@@ -21,10 +22,11 @@ export default function App({ api = realApi }) {
   const [tab, setTab] = useState('dashboard');
   const [overlay, setOverlay] = useState(null); // 'checkin' | 'settings' | null
   const [booting, setBooting] = useState(true);
+  const [generating, setGenerating] = useState(false);
 
   const loadAccount = async () => {
-    const { user: loaded, checkins: loadedCheckins } = await api.load();
-    dispatch({ type: 'load', user: loaded, checkins: loadedCheckins });
+    const { user: loaded, checkins: loadedCheckins, insight: lastInsight } = await api.load();
+    dispatch({ type: 'load', user: loaded, checkins: loadedCheckins, insight: lastInsight });
   };
 
   // Restore a saved session on start.
@@ -79,6 +81,26 @@ export default function App({ api = realApi }) {
       setOverlay(null);
     } catch (error) {
       notify('Nie udało się zapisać check-inu', error.message);
+    }
+  };
+
+  // "Wyciągnij wnioski": the backend sends the anonymised entries to Bielik and stores the answer.
+  const handleGenerateInsight = async () => {
+    const total = filterByDays(checkins, INSIGHT_DAYS).length;
+    if (total < MIN_INSIGHT_ENTRIES) {
+      dispatch({
+        type: 'set-insight',
+        insight: { status: 'insufficient', total, days: INSIGHT_DAYS },
+      });
+      return;
+    }
+    setGenerating(true);
+    try {
+      dispatch({ type: 'set-insight', insight: await api.generateInsight(INSIGHT_DAYS, total) });
+    } catch (error) {
+      notify('Nie udało się wyciągnąć wniosków', error.message);
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -144,9 +166,8 @@ export default function App({ api = realApi }) {
             <InsightsScreen
               checkins={checkins}
               insight={insight}
-              onGenerate={() =>
-                dispatch({ type: 'set-insight', insight: generateInsights(checkins, categories) })
-              }
+              generating={generating}
+              onGenerate={handleGenerateInsight}
             />
           ) : null}
           {tab === 'profile' ? (
