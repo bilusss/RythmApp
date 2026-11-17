@@ -111,6 +111,18 @@ describe('stats', () => {
     expect(clusters).toHaveLength(2);
     expect(clusters.find((cluster) => cluster.count === 2).label).toBe('Praca');
   });
+
+  it('keeps one place together when its GPS points straddle a grid line', () => {
+    const at = (day, lat, lng) => entry(day, 9, 'praca', 50, 3, { latitude: lat, longitude: lng });
+    // ~25 m apart, but 50.0544 and 50.0546 round to different 3-decimal cells.
+    const clusters = locationClusters(
+      [at(15, 50.0544, 19.9361), at(14, 50.0546, 19.9363), at(13, 50.0545, 19.9362)],
+      categories,
+      now
+    );
+    expect(clusters).toHaveLength(1);
+    expect(clusters[0].count).toBe(3);
+  });
 });
 
 describe('insights', () => {

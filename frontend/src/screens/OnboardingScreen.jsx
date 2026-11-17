@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { BellIcon, ClockIcon, LocationIcon, MoonIcon, SunIcon } from '../components/Icons';
@@ -120,13 +113,16 @@ export default function OnboardingScreen({ initialSettings, onComplete, onCancel
 
         <Text style={styles.title}>Ustaw swój rytm dnia</Text>
         <Text style={styles.subtitle}>
-          Wybierz, co chcesz śledzić i kiedy możemy pytać{`\n`}Cię o samopoczucie.
+          {'Wybierz, co chcesz śledzić i kiedy możemy pytać Cię o\u00A0samopoczucie.'}
         </Text>
 
         <Card>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Twoje kategorie czasu</Text>
-            <Text style={styles.cardMeta}>{selectedIds.length} aktywnych</Text>
+            <Text style={styles.cardMeta}>
+              {selectedIds.length}{' '}
+              {pluralize(selectedIds.length, ['aktywna', 'aktywne', 'aktywnych'])}
+            </Text>
           </View>
           <View style={styles.categoryGrid}>
             {categories.map((category) => {
@@ -266,8 +262,9 @@ export default function OnboardingScreen({ initialSettings, onComplete, onCancel
               testID="sleep-time"
             />
           </View>
+          {/* Non-breaking space after "w", so it never ends a line on its own. */}
           <Text style={styles.scheduleHint}>
-            Powiadomienia pojawią się tylko w tym przedziale, w losowych odstępach.
+            {'Powiadomienia pojawią się tylko w\u00A0tym przedziale, w\u00A0losowych odstępach.'}
           </Text>
         </Card>
 
@@ -335,7 +332,14 @@ function ScheduleField({ label, icon, value, tone, onPress, testID }) {
         </Text>
       </View>
       <View style={styles.scheduleValueRow}>
-        <Text style={styles.scheduleValue}>{formatTime12(value)}</Text>
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.7}
+          style={styles.scheduleValue}
+        >
+          {formatTime12(value)}
+        </Text>
         <ClockIcon size={22} />
       </View>
     </TouchableOpacity>
@@ -402,7 +406,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   subtitle: { fontSize: 15, lineHeight: 22, color: theme.colors.textSecondary, marginBottom: 18 },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
   cardTitle: {
     flexShrink: 1,
     fontSize: 17,
@@ -488,8 +497,18 @@ const styles = StyleSheet.create({
   scheduleCool: { backgroundColor: '#EAE8FF' },
   scheduleLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
   scheduleLabel: { fontSize: 14, fontWeight: '500' },
-  scheduleValueRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  scheduleValue: { fontSize: 22, fontWeight: '800', color: theme.colors.textPrimary },
+  scheduleValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 6,
+  },
+  scheduleValue: {
+    flexShrink: 1,
+    fontSize: 22,
+    fontWeight: '800',
+    color: theme.colors.textPrimary,
+  },
   scheduleHint: { fontSize: 14, lineHeight: 20, color: theme.colors.textSecondary, marginTop: 14 },
   permissionsCard: { paddingVertical: 6 },
   permissionRow: {

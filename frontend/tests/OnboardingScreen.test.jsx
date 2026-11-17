@@ -71,6 +71,6 @@ describe('OnboardingScreen', () => {
     await user.press(screen.getByTestId('custom-category-submit'));
 
     expect(screen.getByTestId('category-Siłownia')).toBeTruthy();
-    expect(screen.getByText('1 aktywnych')).toBeTruthy();
+    expect(screen.getByText('1 aktywna')).toBeTruthy();
   });
 });

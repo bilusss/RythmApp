@@ -31,7 +31,7 @@ export default function Button({
           style={[
             styles.text,
             isPrimary ? styles.primaryText : styles.secondaryText,
-            disabled && styles.disabledText,
+            disabled && !isPrimary && styles.disabledText,
           ]}
         >
           {title}

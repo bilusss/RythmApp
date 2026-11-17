@@ -1,0 +1,14 @@
+# Install: cp infra/systemd/rythm-backend.service ~/.config/systemd/user/ && systemctl --user enable --now rythm-backend
+[Unit]
+Description=RythmApp backend (Express + Supabase + Bielik) on 127.0.0.1:3001
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/projects/RythmApp/backend
+ExecStart=%h/.local/bin/node --env-file=.env src/index.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target

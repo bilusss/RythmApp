@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BarsIcon, CalendarIcon, PlusIcon, SparkIcon, UserIcon } from './Icons';
 import { theme } from '../styles/theme';
 
@@ -14,8 +15,10 @@ const ITEMS = [
 const INACTIVE = '#6B7280';
 
 export default function BottomNav({ active, onChange, onAdd }) {
+  // Keep the labels above the iPhone home indicator / Android gesture or button bar.
+  const { bottom } = useSafeAreaInsets();
   return (
-    <View style={styles.bar}>
+    <View style={[styles.bar, { paddingBottom: Math.max(bottom, 22) }]}>
       {ITEMS.map((item) => {
         if (item.value === 'add') {
           return (

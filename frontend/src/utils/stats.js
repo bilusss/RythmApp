@@ -81,27 +81,47 @@ export function energyAt(points, x) {
   return points[points.length - 1].value;
 }
 
-// Groups GPS entries from the last 7 days into ~100 m clusters.
+const CLUSTER_RADIUS_M = 150;
+
+const metersBetween = (a, b) => {
+  const dy = (b.latitude - a.latitude) * 111320;
+  const dx = (b.longitude - a.longitude) * 111320 * Math.cos((a.latitude * Math.PI) / 180);
+  return Math.hypot(dx, dy);
+};
+
+// Groups GPS entries from the last 7 days into places: an entry joins the nearest place within ~150 m.
+// (A fixed ~100 m grid split one place in two whenever its GPS points fell on both sides of a cell
+// border, which drew two spots with overlapping labels.)
 export function locationClusters(checkins, categories, now = new Date()) {
-  const clusters = new Map();
+  const clusters = [];
 
   filterByDays(checkins, 7, now)
     .filter((item) => item.latitude != null && item.longitude != null)
     .forEach((item) => {
-      const key = `${item.latitude.toFixed(3)}:${item.longitude.toFixed(3)}`;
-      const cluster = clusters.get(key) ?? { latitude: 0, longitude: 0, count: 0, categories: {} };
-      cluster.latitude += item.latitude;
-      cluster.longitude += item.longitude;
+      let cluster = null;
+      let nearest = CLUSTER_RADIUS_M;
+      clusters.forEach((candidate) => {
+        const distance = metersBetween(candidate, item);
+        if (distance <= nearest) {
+          cluster = candidate;
+          nearest = distance;
+        }
+      });
+      if (!cluster) {
+        cluster = { latitude: item.latitude, longitude: item.longitude, count: 0, categories: {} };
+        clusters.push(cluster);
+      }
       cluster.count += 1;
+      cluster.latitude += (item.latitude - cluster.latitude) / cluster.count;
+      cluster.longitude += (item.longitude - cluster.longitude) / cluster.count;
       cluster.categories[item.categoryId] = (cluster.categories[item.categoryId] ?? 0) + 1;
-      clusters.set(key, cluster);
     });
 
-  return [...clusters.values()].map((cluster) => {
+  return clusters.map((cluster) => {
     const topId = Object.entries(cluster.categories).sort((a, b) => b[1] - a[1])[0][0];
     return {
-      latitude: cluster.latitude / cluster.count,
-      longitude: cluster.longitude / cluster.count,
+      latitude: cluster.latitude,
+      longitude: cluster.longitude,
       count: cluster.count,
       label: categories.find((category) => category.id === topId)?.name ?? '',
     };

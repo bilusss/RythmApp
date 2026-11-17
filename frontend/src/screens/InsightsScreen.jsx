@@ -1,5 +1,13 @@
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Card from '../components/Card';
 import { SparkIcon } from '../components/Icons';
 import ScreenHeader from '../components/ScreenHeader';
@@ -14,12 +22,18 @@ const TONES = {
   purple: { dot: '#7954E8', chipBg: '#E8DEFF', chipText: '#4B2BB0' },
 };
 
-export default function InsightsScreen({ checkins, insight, onGenerate, now = new Date() }) {
+export default function InsightsScreen({
+  checkins,
+  insight,
+  onGenerate,
+  generating = false,
+  now = new Date(),
+}) {
   const total = filterByDays(checkins, INSIGHT_DAYS, now).length;
   const shownTotal = insight?.status === 'ready' ? insight.total : total;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHeader
           eyebrow={`na podstawie ${shownTotal} ${pluralize(shownTotal, ['wpisu', 'wpisów', 'wpisów'])}`}
@@ -30,9 +44,17 @@ export default function InsightsScreen({ checkins, insight, onGenerate, now = ne
           testID="generate-insights"
           activeOpacity={0.85}
           onPress={onGenerate}
-          style={styles.generate}
+          disabled={generating}
+          style={[styles.generate, generating && styles.generateBusy]}
         >
-          <Text style={styles.generateText}>Wyciągnij wnioski</Text>
+          {generating ? (
+            <View style={styles.busyRow}>
+              <ActivityIndicator color="#FFFFFF" />
+              <Text style={styles.generateText}>Analizuję wpisy…</Text>
+            </View>
+          ) : (
+            <Text style={styles.generateText}>Wyciągnij wnioski</Text>
+          )}
         </TouchableOpacity>
 
         <Card testID="insight-card" style={styles.card}>
@@ -97,6 +119,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   generateText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  generateBusy: { opacity: 0.8 },
+  busyRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   card: { paddingVertical: 18 },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   tagIcon: {
@@ -108,10 +132,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tagText: { fontSize: 14, fontWeight: '700', color: theme.colors.primary },
+  // Bielik's summary: one or two sentences, so a readable lead paragraph rather than a headline.
   title: {
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: '800',
+    fontSize: 17,
+    lineHeight: 25,
+    fontWeight: '600',
     color: theme.colors.textPrimary,
     marginTop: 16,
     marginBottom: 14,
@@ -120,7 +145,7 @@ const styles = StyleSheet.create({
   bulletDot: { width: 9, height: 9, borderRadius: 5, marginTop: 8, marginRight: 12 },
   bulletText: { flex: 1, fontSize: 15, lineHeight: 23, color: '#2B2F45' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
-  chip: { borderRadius: 11, paddingHorizontal: 12, paddingVertical: 8 },
+  chip: { maxWidth: '100%', borderRadius: 11, paddingHorizontal: 12, paddingVertical: 8 },
   chipText: { fontSize: 13, fontWeight: '700' },
   empty: { alignItems: 'center', paddingVertical: 18 },
   emptyIcon: {

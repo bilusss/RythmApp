@@ -18,7 +18,12 @@ export function appReducer(state, action) {
         user: { email: action.email, isOnboarded: false, settings: EMPTY_SETTINGS },
       };
     case 'load':
-      return { ...initialState, user: action.user, checkins: action.checkins };
+      return {
+        ...initialState,
+        user: action.user,
+        checkins: action.checkins,
+        insight: action.insight ?? null,
+      };
     case 'complete-onboarding':
       return { ...state, user: { ...state.user, isOnboarded: true, settings: action.settings } };
     case 'add-checkin':

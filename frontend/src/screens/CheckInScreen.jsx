@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { BoltIcon, CheckIcon, ClockIcon, LocationIcon, MoodIcon } from '../components/Icons';
@@ -100,7 +93,7 @@ export default function CheckInScreen({
                     ]}
                   >
                     <View style={[styles.categoryDot, { backgroundColor: category.color }]} />
-                    <Text numberOfLines={1} style={[styles.categoryText, { color: category.text }]}>
+                    <Text numberOfLines={3} style={[styles.categoryText, { color: category.text }]}>
                       {category.name}
                     </Text>
                     {selected ? <CheckIcon size={20} color={category.text} /> : null}
@@ -242,20 +235,28 @@ const styles = StyleSheet.create({
   bannerSubtitle: { fontSize: 14, color: 'rgba(255,255,255,0.78)', marginTop: 4 },
   cardTitle: { fontSize: 17, lineHeight: 22, fontWeight: '700', color: theme.colors.textPrimary },
   emptyHint: { fontSize: 14, color: theme.colors.textSecondary, marginTop: 10 },
-  categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 14 },
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 10,
+    marginTop: 14,
+  },
   categoryTile: {
     width: '48%',
-    height: 54,
+    minHeight: 54,
     borderRadius: 16,
     borderWidth: 2,
     borderColor: 'transparent',
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
   categoryTileSelected: { borderColor: theme.colors.primary },
-  categoryDot: { width: 11, height: 11, borderRadius: 6, marginRight: 10 },
-  categoryText: { flex: 1, fontSize: 16, fontWeight: '700' },
+  categoryDot: { width: 11, height: 11, borderRadius: 6 },
+  categoryText: { flex: 1, fontSize: 15, lineHeight: 19, fontWeight: '700' },
   textarea: {
     height: 92,
     marginTop: 14,

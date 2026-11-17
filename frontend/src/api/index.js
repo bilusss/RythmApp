@@ -1,4 +1,6 @@
-import { toCheckin, toCheckinBody, toProfileBody, toUser } from './mappers';
+import { INSIGHT_DAYS } from '../utils/insights';
+import { filterByDays } from '../utils/stats';
+import { toCheckin, toCheckinBody, toInsight, toProfileBody, toUser } from './mappers';
 import { getSupabase } from './supabase';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -59,10 +61,21 @@ export const api = {
     authError((await getSupabase().auth.resetPasswordForEmail(email)).error);
   },
 
-  // Profile + settings + recent check-ins.
+  // Profile + settings + recent check-ins + the last AI insight (shown at once, no LLM call).
   async load() {
-    const [me, checkins] = await Promise.all([request('GET', '/me'), request('GET', '/checkins')]);
-    return { user: toUser(me), checkins: checkins.map(toCheckin) };
+    const [me, rows, last] = await Promise.all([
+      request('GET', '/me'),
+      request('GET', '/checkins'),
+      request('GET', '/insights/latest'),
+    ]);
+    const checkins = rows.map(toCheckin);
+    const insight = last ? toInsight(last, filterByDays(checkins, INSIGHT_DAYS).length) : null;
+    return { user: toUser(me), checkins, insight };
+  },
+
+  // Asks the backend to analyse the last `days` days with Bielik (LLM on the GPU PC); takes a few seconds.
+  async generateInsight(days, total) {
+    return toInsight(await request('POST', '/insights', { days }), total);
   },
 
   // Saves onboarding/settings; categories that were deselected are archived on the server.
