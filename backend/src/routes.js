@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { db, ok } from './supabase.js';
 import { planDay, awakeHours } from './scheduler.js';
-import { makeInsight } from './insights.js';
+import { makeInsight, userTimeZone } from './insights.js';
 import { rateLimit } from './rateLimit.js';
 
 const r = Router();
@@ -124,10 +124,17 @@ const insightLimit = rateLimit({ windowMs: 3_600_000, max: 20, key: (req) => req
 r.post('/insights', insightLimit, async (req, res) => {
   const days = z.object({ days: z.int().min(1).max(90).default(30) }).parse(req.body ?? {}).days;
   const from = new Date(Date.now() - days * 864e5);
-  const rows = ok(await db.from('checkins').select('*, category:categories(name)').eq('user_id', req.user.id).eq('status', 'done').gte('scheduled_at', from.toISOString()));
+  // Newest first, so the 1000-row cap of the Supabase API drops the oldest entries, not the newest.
+  const [rows, p] = await Promise.all([
+    db.from('checkins').select('scheduled_at, description, mood, energy_level, latitude, longitude, category:categories(name)').eq('user_id', req.user.id).eq('status', 'done').gte('scheduled_at', from.toISOString()).order('scheduled_at', { ascending: false }).limit(1000).then(ok),
+    db.from('profiles').select('timezone').eq('id', req.user.id).maybeSingle().then(ok),
+  ]);
   if (!rows.length) return res.status(400).json({ error: 'Brak wpisów do analizy' });
-  const { summary, ...structured } = await makeInsight(rows);
-  res.status(201).json(ok(await db.from('insights').insert({ user_id: req.user.id, description: summary, structured_data: structured, from_date: from.toISOString().slice(0, 10), to_date: new Date().toISOString().slice(0, 10) }).select().single()));
+  const timeZone = userTimeZone(p?.timezone);
+  const { summary, ...structured } = await makeInsight(rows, { timeZone, days });
+  const day = (d) => d.toLocaleDateString('en-CA', { timeZone }); // YYYY-MM-DD in the user's zone
+  // `entries`: how many check-ins the answer is based on (the app shows it next to the insight).
+  res.status(201).json(ok(await db.from('insights').insert({ user_id: req.user.id, description: summary, structured_data: { ...structured, entries: rows.length }, from_date: day(from), to_date: day(new Date()) }).select().single()));
 });
 
 export default r;

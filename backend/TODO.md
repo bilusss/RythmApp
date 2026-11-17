@@ -11,6 +11,6 @@
 ## Later
 - [ ] Bielik: set `BIELIK_BASE_URL`, `BIELIK_API_KEY`, `BIELIK_MODEL` once vLLM is running
 - [ ] Push notifications: send in `scheduler.js` `tick()` (FCM / Expo push) + the app must `PUT /me { push_token }`
-- [ ] Use `profiles.timezone` in `planDay` and the dashboard hourly energy (currently server time)
+- [ ] Use `profiles.timezone` in `planDay` and the dashboard hourly energy (currently server time; insights already use it)
 - [ ] Check that `category_id` belongs to the user on check-in writes
-- [ ] Spec says insights cluster GPS; we only round to ~1 km (`anonymise`), fine for now
+- [x] Insights cluster GPS points into ~150 m places (`buildPrompt` in `insights.js`)
