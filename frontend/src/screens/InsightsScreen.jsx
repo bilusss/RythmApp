@@ -132,10 +132,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tagText: { fontSize: 14, fontWeight: '700', color: theme.colors.primary },
+  // Bielik's summary: one or two sentences, so a readable lead paragraph rather than a headline.
   title: {
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: '800',
+    fontSize: 17,
+    lineHeight: 25,
+    fontWeight: '600',
     color: theme.colors.textPrimary,
     marginTop: 16,
     marginBottom: 14,
@@ -144,7 +145,7 @@ const styles = StyleSheet.create({
   bulletDot: { width: 9, height: 9, borderRadius: 5, marginTop: 8, marginRight: 12 },
   bulletText: { flex: 1, fontSize: 15, lineHeight: 23, color: '#2B2F45' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
-  chip: { borderRadius: 11, paddingHorizontal: 12, paddingVertical: 8 },
+  chip: { maxWidth: '100%', borderRadius: 11, paddingHorizontal: 12, paddingVertical: 8 },
   chipText: { fontSize: 13, fontWeight: '700' },
   empty: { alignItems: 'center', paddingVertical: 18 },
   emptyIcon: {

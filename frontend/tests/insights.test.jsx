@@ -24,12 +24,17 @@ describe('toInsight', () => {
       total: 5,
       days: 14,
       title: row.description,
-      bullets: [{ tone: 'purple', text: 'Najszczęśliwszy jesteś: wieczorem, podczas relaksu' }],
+      bullets: [{ tone: 'purple', text: 'Najlepszy nastrój: wieczorem, podczas relaksu' }],
       chips: [
         { tone: 'green', text: '↑ bieganie w parku' },
         { tone: 'orange', text: '↓ korek do pracy' },
       ],
     });
+  });
+
+  it('counts the entries the answer was based on, not the ones added since', () => {
+    const saved = { ...row, structured_data: { ...row.structured_data, entries: 12 } };
+    expect(toInsight(saved, 40).total).toBe(12);
   });
 });
 
