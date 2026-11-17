@@ -113,7 +113,7 @@ export default function OnboardingScreen({ initialSettings, onComplete, onCancel
 
         <Text style={styles.title}>Ustaw swój rytm dnia</Text>
         <Text style={styles.subtitle}>
-          Wybierz, co chcesz śledzić i kiedy możemy pytać Cię o samopoczucie.
+          {'Wybierz, co chcesz śledzić i kiedy możemy pytać Cię o\u00A0samopoczucie.'}
         </Text>
 
         <Card>
