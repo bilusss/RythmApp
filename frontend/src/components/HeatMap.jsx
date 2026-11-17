@@ -13,6 +13,10 @@ import { theme } from '../styles/theme';
 
 const HEIGHT = 200;
 const MARGIN = 0.2;
+const LABEL_HEIGHT = 26;
+
+// Generous width of a label (13 pt bold + padding); only used to keep labels apart and inside the map.
+const labelWidth = (text) => text.length * 8 + 24;
 
 // Neutral street-map backdrop; carries no data, only gives the heat spots context.
 function MapBackdrop({ width }) {
@@ -72,9 +76,36 @@ function project(clusters, width) {
   }));
 }
 
+// Labels go to the most visited places first and stay inside the map; a label that would cover one
+// already placed is left out (its heat spot is still drawn).
+function placeLabels(spots, width) {
+  const boxes = [];
+  return [...spots]
+    .sort((a, b) => b.count - a.count)
+    .filter((spot) => spot.label)
+    .map((spot) => {
+      const w = Math.min(labelWidth(spot.label), width - 8);
+      const x = Math.min(Math.max(spot.px, w / 2 + 4), width - w / 2 - 4);
+      const y = Math.min(Math.max(spot.py, LABEL_HEIGHT / 2 + 4), HEIGHT - LABEL_HEIGHT / 2 - 4);
+      return {
+        spot,
+        x,
+        y,
+        box: [x - w / 2 - 4, y - LABEL_HEIGHT / 2 - 2, x + w / 2 + 4, y + LABEL_HEIGHT / 2 + 2],
+      };
+    })
+    .filter(({ box: [left, top, right, bottom] }) => {
+      if (boxes.some(([l, t, r, b]) => left < r && right > l && top < b && bottom > t))
+        return false;
+      boxes.push([left, top, right, bottom]);
+      return true;
+    });
+}
+
 export default function HeatMap({ clusters, gpsEnabled }) {
   const [width, setWidth] = useState(0);
   const spots = width > 0 && clusters.length > 0 ? project(clusters, width) : [];
+  const labels = placeLabels(spots, width);
 
   const emptyMessage = gpsEnabled
     ? 'Brak danych o lokalizacji z ostatnich 7 dni'
@@ -110,13 +141,15 @@ export default function HeatMap({ clusters, gpsEnabled }) {
           </Svg>
         ) : null}
 
-        {spots.map((spot) => (
+        {labels.map(({ spot, x, y }) => (
           <View
             key={`label-${spot.latitude}:${spot.longitude}`}
             pointerEvents="none"
-            style={[styles.label, { left: spot.px, top: spot.py }]}
+            style={[styles.label, { left: x, top: y, maxWidth: width - 8 }]}
           >
-            <Text style={styles.labelText}>{spot.label}</Text>
+            <Text numberOfLines={1} style={styles.labelText}>
+              {spot.label}
+            </Text>
           </View>
         ))}
 
