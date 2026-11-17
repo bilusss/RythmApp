@@ -1,13 +1,13 @@
 import React from 'react';
 import {
   ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Card from '../components/Card';
 import { SparkIcon } from '../components/Icons';
 import ScreenHeader from '../components/ScreenHeader';
@@ -33,7 +33,7 @@ export default function InsightsScreen({
   const shownTotal = insight?.status === 'ready' ? insight.total : total;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHeader
           eyebrow={`na podstawie ${shownTotal} ${pluralize(shownTotal, ['wpisu', 'wpisów', 'wpisów'])}`}

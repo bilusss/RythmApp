@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Card from '../components/Card';
 import CategoryPill from '../components/CategoryPill';
 import { BoltIcon, FilterIcon, MoodIcon } from '../components/Icons';
@@ -28,7 +29,7 @@ export default function HistoryScreen({ checkins, categories, now = new Date() }
   const categoryOf = (id) => categories.find((category) => category.id === id);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHeader
           eyebrow="Twoje check-iny"

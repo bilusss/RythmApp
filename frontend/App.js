@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useReducer, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { api as realApi } from './src/api';
 import { getCurrentCoords } from './src/api/location';
 import BottomNav from './src/components/BottomNav';
@@ -185,10 +186,12 @@ export default function App({ api = realApi }) {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="dark" />
-      {renderContent()}
-    </View>
+    <SafeAreaProvider>
+      <View style={styles.container}>
+        <StatusBar style="dark" />
+        {renderContent()}
+      </View>
+    </SafeAreaProvider>
   );
 }
 
