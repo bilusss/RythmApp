@@ -109,7 +109,7 @@ export default function HeatMap({ clusters, gpsEnabled }) {
 
   const emptyMessage = gpsEnabled
     ? 'Brak danych o lokalizacji z ostatnich 7 dni'
-    : 'Włącz lokalizację GPS w ustawieniach, aby zobaczyć mapę miejsc';
+    : 'Włącz lokalizację GPS w\u00A0ustawieniach, aby zobaczyć mapę miejsc';
 
   return (
     <View>
