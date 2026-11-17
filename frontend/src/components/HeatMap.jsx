@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   labelText: { fontSize: 13, fontWeight: '700', color: theme.colors.textPrimary },
-  empty: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
+  empty: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
   emptyText: {
     maxWidth: 240,
     textAlign: 'center',

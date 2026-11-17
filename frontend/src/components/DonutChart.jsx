@@ -51,7 +51,8 @@ export default function DonutChart({ segments, size = 124, strokeWidth = 17, chi
           );
         })}
       </Svg>
-      <View style={styles.center} pointerEvents="none">
+      {/* Children stay inside the hole of the ring. */}
+      <View style={[styles.center, { paddingHorizontal: strokeWidth + 6 }]} pointerEvents="none">
         {children}
       </View>
     </View>
@@ -61,15 +62,19 @@ export default function DonutChart({ segments, size = 124, strokeWidth = 17, chi
 export function DonutCenter({ value, caption }) {
   return (
     <>
-      <Text style={styles.value}>{value}</Text>
-      <Text style={styles.caption}>{caption}</Text>
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.value}>
+        {value}
+      </Text>
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={styles.caption}>
+        {caption}
+      </Text>
     </>
   );
 }
 
 const styles = StyleSheet.create({
   svg: { position: 'absolute' },
-  center: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
-  value: { fontSize: 26, fontWeight: '800', color: theme.colors.textPrimary },
+  center: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
+  value: { fontSize: 24, fontWeight: '800', color: theme.colors.textPrimary },
   caption: { fontSize: 12, color: theme.colors.textSecondary, marginTop: 1 },
 });

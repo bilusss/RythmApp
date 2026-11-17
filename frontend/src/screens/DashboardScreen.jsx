@@ -20,6 +20,9 @@ import {
   rangeDays,
 } from '../utils/stats';
 
+// "17,3 h"; week/month totals ("120,8 h", "517,5 h") without the decimal so they fit the ring.
+const formatHours = (hours) => `${hours >= 100 ? Math.round(hours) : formatDecimal(hours)} h`;
+
 export default function DashboardScreen({
   checkins,
   categories,
@@ -74,15 +77,15 @@ export default function DashboardScreen({
           </View>
           <View style={styles.donutRow}>
             <DonutChart
-              size={112}
-              strokeWidth={16}
+              size={120}
+              strokeWidth={14}
               segments={view.breakdown.map(({ category, share }) => ({
                 key: category.id,
                 value: share,
                 color: category.color,
               }))}
             >
-              <DonutCenter value={`${formatDecimal(view.totalHours)} h`} caption="aktywności" />
+              <DonutCenter value={formatHours(view.totalHours)} caption="aktywności" />
             </DonutChart>
             <View style={styles.legend}>
               {view.breakdown.length === 0 ? (
@@ -96,7 +99,7 @@ export default function DashboardScreen({
                     style={styles.legendRow}
                   >
                     <View style={[styles.legendDot, { backgroundColor: category.color }]} />
-                    <Text numberOfLines={1} style={styles.legendName}>
+                    <Text numberOfLines={2} style={styles.legendName}>
                       {category.name}
                     </Text>
                     <Text style={styles.legendValue}>{percent}%</Text>
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
   legend: { flex: 1, gap: 9 },
   legendRow: { flexDirection: 'row', alignItems: 'center' },
   legendDot: { width: 10, height: 10, borderRadius: 3, marginRight: 8 },
-  legendName: { flex: 1, fontSize: 14, color: theme.colors.textPrimary },
+  legendName: { flex: 1, marginRight: 8, fontSize: 14, color: theme.colors.textPrimary },
   legendValue: { fontSize: 14, fontWeight: '800', color: theme.colors.textPrimary },
   legendEmpty: { fontSize: 14, color: theme.colors.textSecondary },
   averageBadge: {
