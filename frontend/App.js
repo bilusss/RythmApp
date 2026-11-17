@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useReducer, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api as realApi } from './src/api';
 import { getCurrentCoords } from './src/api/location';
 import BottomNav from './src/components/BottomNav';
@@ -16,7 +17,17 @@ import { theme } from './src/styles/theme';
 import { generateInsights } from './src/utils/insights';
 import { notify } from './src/utils/notify';
 
-export default function App({ api = realApi }) {
+export default function App(props) {
+  return (
+    <SafeAreaProvider>
+      <AppContent {...props} />
+    </SafeAreaProvider>
+  );
+}
+
+function AppContent({ api = realApi }) {
+  // Android draws edge-to-edge, so keep content clear of the status bar and system navigation bar.
+  const insets = useSafeAreaInsets();
   const [{ user, checkins, insight }, dispatch] = useReducer(appReducer, initialState);
   const [tab, setTab] = useState('dashboard');
   const [overlay, setOverlay] = useState(null); // 'checkin' | 'settings' | null
@@ -158,13 +169,26 @@ export default function App({ api = realApi }) {
             />
           ) : null}
         </View>
-        <BottomNav active={tab} onChange={setTab} onAdd={() => setOverlay('checkin')} />
+        <BottomNav
+          active={tab}
+          onChange={setTab}
+          onAdd={() => setOverlay('checkin')}
+          bottomInset={insets.bottom}
+        />
       </>
     );
   };
 
+  const showsNav = !booting && user?.isOnboarded && !overlay;
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        // The bottom nav pads itself; other screens need the bottom inset here.
+        { paddingTop: insets.top, paddingBottom: showsNav ? 0 : insets.bottom },
+      ]}
+    >
       <StatusBar style="dark" />
       {renderContent()}
     </View>

@@ -13,9 +13,9 @@ const ITEMS = [
 
 const INACTIVE = '#6B7280';
 
-export default function BottomNav({ active, onChange, onAdd }) {
+export default function BottomNav({ active, onChange, onAdd, bottomInset = 0 }) {
   return (
-    <View style={styles.bar}>
+    <View style={[styles.bar, { paddingBottom: styles.bar.paddingBottom + bottomInset }]}>
       {ITEMS.map((item) => {
         if (item.value === 'add') {
           return (
